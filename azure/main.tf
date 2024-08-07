@@ -164,12 +164,6 @@ resource "azurerm_container_app" "container_app" {
       image  = "cangelosilima/sanduba-admin-api:latest"
       cpu    = 0.25
       memory = "0.5Gi"
-      env {
-        name = "ConnectionStrings__AdminDatabase__value"
-        secret_name = "DATABASE_CONNECTION_STRING"
-        value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_admin_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-      }
-
     }
   }
 }
