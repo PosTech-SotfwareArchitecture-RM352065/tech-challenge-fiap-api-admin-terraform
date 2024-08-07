@@ -145,11 +145,6 @@ resource "azurerm_monitor_diagnostic_setting" "topic_monitor" {
   }
 }
 
-data "azurerm_log_analytics_workspace" "log_workspace" {
-  name                = "fiap-tech-challenge-observability-workspace"
-  resource_group_name = var.main_resource_group_location
-}
-
 resource "azurerm_container_app_environment" "container_app_environment" {
   name                       = "fiap-tech-challange-admin-app-environment"
   location                   = azurerm_resource_group.resource_group.location
