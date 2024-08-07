@@ -80,7 +80,116 @@ resource "azurerm_servicebus_subscription" "customer_topic_subscription" {
   max_delivery_count = 1
 }
 
+resource "azurerm_servicebus_namespace" "servicebus_namespace" {
+  name                = "fiap-tech-challenge-product-topic-namespace"
+  location            = azurerm_resource_group.resource_group.location
+  resource_group_name = azurerm_resource_group.resource_group.name
+  sku                 = "Standard"
+
+  tags = {
+    environment = azurerm_resource_group.resource_group.tags["environment"]
+  }
+}
+
+resource "azurerm_servicebus_topic" "servicebus_topic" {
+  name         = "fiap-tech-challenge-product-topic"
+  namespace_id = azurerm_servicebus_namespace.servicebus_namespace.id
+}
+
+resource "azurerm_servicebus_topic_authorization_rule" "servicebus_topic_manager" {
+  name     = "${azurerm_servicebus_topic.servicebus_topic.name}-manager"
+  topic_id = azurerm_servicebus_topic.servicebus_topic.id
+  listen   = true
+  send     = true
+  manage   = true
+}
+
+resource "azurerm_servicebus_topic_authorization_rule" "servicebus_topic_publisher" {
+  name     = "${azurerm_servicebus_topic.servicebus_topic.name}-publisher"
+  topic_id = azurerm_servicebus_topic.servicebus_topic.id
+  listen   = false
+  send     = true
+  manage   = false
+}
+
+resource "azurerm_servicebus_topic_authorization_rule" "servicebus_topic_listener" {
+  name     = "${azurerm_servicebus_topic.servicebus_topic.name}-listener"
+  topic_id = azurerm_servicebus_topic.servicebus_topic.id
+  listen   = true
+  send     = false
+  manage   = false
+}
+
+resource "azurerm_monitor_diagnostic_setting" "topic_monitor" {
+  name                       = "fiap-tech-challenge-product-topic-monitor"
+  target_resource_id         = azurerm_servicebus_namespace.servicebus_namespace.id
+  storage_account_id         = data.azurerm_storage_account.log_storage_account.id
+  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.log_workspace.id
+
+  enabled_log {
+    category_group = "allLogs"
+  }
+
+  metric {
+    category = "AllMetrics"
+  }
+}
+
+data "azurerm_log_analytics_workspace" "log_workspace" {
+  name                = "fiap-tech-challenge-observability-workspace"
+  resource_group_name = var.main_resource_group_location
+}
+
+resource "azurerm_container_app_environment" "container_app_environment" {
+  name                       = "fiap-tech-challange-admin-app-environment"
+  location                   = azurerm_resource_group.resource_group.location
+  resource_group_name        = azurerm_resource_group.resource_group.name
+  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.log_workspace.id
+}
+
+resource "azurerm_container_app" "container_app" {
+  name                         = "fiap-tech-challange-admin-app"
+  container_app_environment_id = azurerm_container_app_environment.container_app_environment.id
+  resource_group_name          = azurerm_container_app_environment.container_app_environment.resource_group_name
+  revision_mode                = "Single"
+
+  template {
+    container {
+      name   = "sanduba-admin-api"
+      image  = "cangelosilima/sanduba-admin-api:latest"
+      cpu    = 0.25
+      memory = "0.5Gi"
+      env {
+        name = "ConnectionStrings__AdminDatabase__value"
+        secret_name = "DATABASE_CONNECTION_STRING"
+        value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_admin_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+      }
+
+    }
+  }
+}
+
+# output "sanduba_admin_url" {
+#   sensitive = false
+#   value     = azurerm_container_app.container_app.
+# }
+
 output "sanduba_admin_database_connection_string" {
   sensitive = true
   value     = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_admin_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+}
+
+output "sanduba_product_topic_manager_connection_string" {
+  sensitive = true
+  value     = azurerm_servicebus_topic_authorization_rule.servicebus_topic_manager.primary_connection_string
+}
+
+output "sanduba_product_topic_publisher_connection_string" {
+  sensitive = true
+  value     = azurerm_servicebus_topic_authorization_rule.servicebus_topic_publisher.primary_connection_string
+}
+
+output "sanduba_product_topic_listener_connection_string" {
+  sensitive = true
+  value     = azurerm_servicebus_topic_authorization_rule.servicebus_topic_listener.primary_connection_string
 }

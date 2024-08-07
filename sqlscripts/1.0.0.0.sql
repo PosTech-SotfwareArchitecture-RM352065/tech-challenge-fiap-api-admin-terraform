@@ -18,6 +18,7 @@ CREATE TABLE Orders (
 ,   Code        INT                 NOT NULL
 ,   [Status]    INT                 NOT NULL
 ,   TotalAmount DECIMAL(18, 2)      NOT NULL
+,   PaymentId   UNIQUEIDENTIFIER    NOT NULL
 ,   PayedAt     DATETIME            NOT NULL
 ,   AcceptedAt  DATETIME            NULL
 ,   FinalizedAt DATETIME            NULL
