@@ -120,6 +120,16 @@ resource "azurerm_servicebus_topic_authorization_rule" "servicebus_topic_listene
   manage   = false
 }
 
+data "azurerm_storage_account" "log_storage_account" {
+  name                = "sandubalog"
+  resource_group_name = var.main_resource_group
+}
+
+data "azurerm_log_analytics_workspace" "log_workspace" {
+  name                = "fiap-tech-challenge-observability-workspace"
+  resource_group_name = data.azurerm_storage_account.log_storage_account.resource_group_name
+}
+
 resource "azurerm_monitor_diagnostic_setting" "topic_monitor" {
   name                       = "fiap-tech-challenge-product-topic-monitor"
   target_resource_id         = azurerm_servicebus_namespace.servicebus_namespace.id
