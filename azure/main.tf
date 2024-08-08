@@ -75,7 +75,7 @@ data "azurerm_servicebus_topic" "customer_topic" {
 }
 
 data "azurerm_servicebus_topic_authorization_rule" "customer_topic_manager" {
-  name     = "${data.azurerm_servicebus_topic.customer_topic}-manager"
+  name     = "${data.azurerm_servicebus_topic.customer_topic.name}-manager"
   topic_id = data.azurerm_servicebus_topic.customer_topic.id
 }
 
