@@ -176,32 +176,32 @@ resource "azurerm_container_app" "container_app" {
       }
 
       env {
-        name  = "ASPNETCORE_ConnectionStrings__AdminDatabase__Value"
+        name  = "ASPNETCORE_ConnectionStrings_AdminDatabase_Value"
         value = "MSSQL"
       }
 
       env {
-        name  = "ASPNETCORE_ConnectionStrings__AdminDatabase__Type="
+        name  = "ASPNETCORE_ConnectionStrings_AdminDatabase_Type="
         value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_admin_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
       }
 
       env {
-        name  = "ASPNETCORE_CustomerBrokerSettings__ConnectionStrings"
+        name  = "ASPNETCORE_CustomerBrokerSettings_ConnectionStrings"
         value = data.azurerm_servicebus_topic_authorization_rule.customer_topic_manager.primary_connection_string
       }
 
       env {
-        name  = "ASPNETCORE_CustomerBrokerSettings__TopicName"
+        name  = "ASPNETCORE_CustomerBrokerSettings_TopicName"
         value = data.azurerm_servicebus_topic.customer_topic.name
       }
 
       env {
-        name  = "ASPNETCORE_CustomerBrokerSettings__SubscriptionName"
+        name  = "ASPNETCORE_CustomerBrokerSettings_SubscriptionName"
         value = azurerm_servicebus_subscription.customer_topic_subscription.name
       }
 
       env {
-        name  = "ASPNETCORE_ProductBrokerSettings__ConnectionStrings"
+        name  = "ASPNETCORE_ProductBrokerSettings_ConnectionStrings"
         value = azurerm_servicebus_topic_authorization_rule.servicebus_topic_manager.primary_connection_string
       }
     }
