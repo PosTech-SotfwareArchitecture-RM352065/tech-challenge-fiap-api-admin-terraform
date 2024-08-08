@@ -207,16 +207,19 @@ resource "azurerm_container_app" "container_app" {
     }
   }
   
-  # ingress {
-  #   external_enabled = true
-  #   target_port      = 80
-  # }
+  ingress {
+    external_enabled = true
+    target_port      = 80
+    traffic_weight {
+      percentage = 100
+    }
+  }
 }
 
-# output "sanduba_admin_url" {
-#   sensitive = false
-#   value     = azurerm_container_app.container_app.
-# }
+output "sanduba_admin_url" {
+  sensitive = false
+  value     = azurerm_container_app.container_app.ingress.fqdn
+}
 
 output "sanduba_admin_database_connection_string" {
   sensitive = true
