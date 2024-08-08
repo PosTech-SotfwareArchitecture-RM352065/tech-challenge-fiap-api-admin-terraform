@@ -74,6 +74,11 @@ data "azurerm_servicebus_topic" "customer_topic" {
   namespace_id = data.azurerm_servicebus_namespace.customer_topic_namespace.id
 }
 
+data "azurerm_servicebus_topic_authorization_rule" "customer_topic_manager" {
+  name     = "${data.azurerm_servicebus_topic.customer_topic}-manager"
+  topic_id = data.azurerm_servicebus_topic.customer_topic.id
+}
+
 resource "azurerm_servicebus_subscription" "customer_topic_subscription" {
   name               = "customer-topic-admin-subscription"
   topic_id           = data.azurerm_servicebus_topic.customer_topic.id
@@ -161,11 +166,51 @@ resource "azurerm_container_app" "container_app" {
   template {
     container {
       name   = "sanduba-admin-api"
-      image  = "cangelosilima/sanduba-admin-api:latest"
+      image  = "docker.io/cangelosilima/sanduba-admin-api:latest"
       cpu    = 0.25
       memory = "0.5Gi"
+      
+      env {
+        name  = "WEBSITES_ENABLE_APP_SERVICE_STORAGE"
+        value = "false"
+      }
+
+      env {
+        name  = "ASPNETCORE_ConnectionStrings__AdminDatabase__Value"
+        value = "MSSQL"
+      }
+
+      env {
+        name  = "ASPNETCORE_ConnectionStrings__AdminDatabase__Type="
+        value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_admin_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+      }
+
+      env {
+        name  = "ASPNETCORE_CustomerBrokerSettings__ConnectionStrings"
+        value = data.azurerm_servicebus_topic_authorization_rule.customer_topic_manager.primary_connection_string
+      }
+
+      env {
+        name  = "ASPNETCORE_CustomerBrokerSettings__TopicName"
+        value = data.azurerm_servicebus_topic.customer_topic.name
+      }
+
+      env {
+        name  = "ASPNETCORE_CustomerBrokerSettings__SubscriptionName"
+        value = azurerm_servicebus_subscription.customer_topic_subscription.name
+      }
+
+      env {
+        name  = "ASPNETCORE_ProductBrokerSettings__ConnectionStrings"
+        value = azurerm_servicebus_topic_authorization_rule.servicebus_topic_manager.primary_connection_string
+      }
     }
   }
+  
+  # ingress {
+  #   external_enabled = true
+  #   target_port      = 80
+  # }
 }
 
 # output "sanduba_admin_url" {
