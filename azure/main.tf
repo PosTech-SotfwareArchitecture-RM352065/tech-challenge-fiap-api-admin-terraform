@@ -207,13 +207,13 @@ resource "azurerm_container_app" "container_app" {
     }
   }
   
-  ingress {
-    external_enabled = true
-    target_port      = 80
-    traffic_weight {
-      percentage = 100
-    }
-  }
+  # ingress {
+  #   external_enabled = true
+  #   target_port      = 80
+  #   traffic_weight {
+  #     percentage = 100
+  #   }
+  # }
 }
 
 output "sanduba_admin_url" {
