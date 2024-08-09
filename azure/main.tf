@@ -210,7 +210,6 @@ resource "azurerm_container_app" "container_app" {
     ingress {
       external_enabled = true    # Set to false if you want the ingress to be internal only
       target_port      = 80      # The port that your container listens to
-      exposed_port     = 443     # The port exposed for external access (e.g., 443 for HTTPS)
       transport        = "auto"  # Can be "http", "https", or "auto" for both
       traffic_weight {
         percentage      =  100
