@@ -135,20 +135,20 @@ data "azurerm_log_analytics_workspace" "log_workspace" {
   resource_group_name = data.azurerm_storage_account.log_storage_account.resource_group_name
 }
 
-resource "azurerm_monitor_diagnostic_setting" "topic_monitor" {
-  name                       = "fiap-tech-challenge-product-topic-monitor"
-  target_resource_id         = azurerm_servicebus_namespace.servicebus_namespace.id
-  storage_account_id         = data.azurerm_storage_account.log_storage_account.id
-  log_analytics_workspace_id = data.azurerm_log_analytics_workspace.log_workspace.id
+# resource "azurerm_monitor_diagnostic_setting" "topic_monitor" {
+#   name                       = "fiap-tech-challenge-product-topic-monitor"
+#   target_resource_id         = azurerm_servicebus_namespace.servicebus_namespace.id
+#   storage_account_id         = data.azurerm_storage_account.log_storage_account.id
+#   log_analytics_workspace_id = data.azurerm_log_analytics_workspace.log_workspace.id
 
-  enabled_log {
-    category_group = "allLogs"
-  }
+#   enabled_log {
+#     category_group = "allLogs"
+#   }
 
-  metric {
-    category = "AllMetrics"
-  }
-}
+#   metric {
+#     category = "AllMetrics"
+#   }
+# }
 
 resource "azurerm_container_app_environment" "container_app_environment" {
   name                       = "fiap-tech-challange-admin-app-environment"
