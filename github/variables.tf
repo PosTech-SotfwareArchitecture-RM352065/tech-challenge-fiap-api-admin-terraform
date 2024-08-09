@@ -1,3 +1,9 @@
+variable "sanduba_admin_url" {
+  sensitive = false
+  type      = string
+  default   = ""
+}
+
 variable "sanduba_admin_database_connection_string" {
   sensitive = true
   type      = string

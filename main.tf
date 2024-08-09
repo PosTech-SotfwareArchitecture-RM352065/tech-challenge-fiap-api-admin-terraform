@@ -40,6 +40,7 @@ module "azure" {
 
 module "github" {
   source                                            = "./github"
+  sanduba_admin_url                                 = module.azure.sanduba_admin_url
   sanduba_admin_database_connection_string          = module.azure.sanduba_admin_database_connection_string
   sanduba_product_topic_manager_connection_string   = module.azure.sanduba_product_topic_manager_connection_string
   sanduba_product_topic_publisher_connection_string = module.azure.sanduba_product_topic_publisher_connection_string
