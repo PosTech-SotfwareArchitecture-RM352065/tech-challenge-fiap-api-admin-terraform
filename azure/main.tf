@@ -209,7 +209,7 @@ resource "azurerm_container_app" "container_app" {
   
     ingress {
       external_enabled = true    # Set to false if you want the ingress to be internal only
-      target_port      = 80      # The port that your container listens to
+      target_port      = 8080      # The port that your container listens to
       transport        = "auto"  # Can be "http", "https", or "auto" for both
       traffic_weight {
         percentage      =  100
