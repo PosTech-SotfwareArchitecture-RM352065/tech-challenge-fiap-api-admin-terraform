@@ -176,12 +176,12 @@ resource "azurerm_container_app" "container_app" {
       }
 
       env {
-        name  = "ASPNETCORE_ConnectionStrings__AdminDatabase__Value"
+        name  = "ASPNETCORE_ConnectionStrings__AdminDatabase__Type"
         value = "MSSQL"
       }
 
       env {
-        name  = "ASPNETCORE_ConnectionStrings__AdminDatabase__Type"
+        name  = "ASPNETCORE_ConnectionStrings__AdminDatabase__Value"
         value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_admin_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
       }
 
