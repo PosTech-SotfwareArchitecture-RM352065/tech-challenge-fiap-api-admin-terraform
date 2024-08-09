@@ -216,10 +216,10 @@ resource "azurerm_container_app" "container_app" {
   # }
 }
 
-output "sanduba_admin_url" {
-  sensitive = false
-  value     = azurerm_container_app.container_app.ingress[0].fqdn
-}
+# output "sanduba_admin_url" {
+#   sensitive = false
+#   value     = azurerm_container_app.container_app.ingress[0].fqdn
+# }
 
 output "sanduba_admin_database_connection_string" {
   sensitive = true
