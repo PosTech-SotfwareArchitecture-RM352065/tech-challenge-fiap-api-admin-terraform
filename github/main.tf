@@ -5,7 +5,7 @@ resource "github_actions_organization_secret" "sanduba_admin_database_connection
 }
 
 resource "github_actions_organization_variable" "sanduba_admin_database" {
-  variable_name = "APP_ADMIN_DATABASE"
+  variable_name = "APP_ADMIN_URL"
   visibility    = "all"
-  value         = var.sanduba_admin_database_connection_string
+  value         = var.sanduba_admin_url
 }
