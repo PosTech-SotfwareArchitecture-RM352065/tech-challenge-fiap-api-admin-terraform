@@ -213,7 +213,8 @@ resource "azurerm_container_app" "container_app" {
       exposed_port     = 443     # The port exposed for external access (e.g., 443 for HTTPS)
       transport        = "auto"  # Can be "http", "https", or "auto" for both
       traffic_weight {
-        percentage =  100
+        percentage      =  100
+        latest_revision = true
       }
     }
 }
