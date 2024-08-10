@@ -100,7 +100,7 @@ data "azurerm_servicebus_topic_authorization_rule" "order_topic_manager" {
   topic_id = data.azurerm_servicebus_topic.order_topic.id
 }
 
-resource "azurerm_servicebus_subscription" "customer_topic_subscription" {
+resource "azurerm_servicebus_subscription" "order_topic_subscription" {
   name               = "order-topic-admin-subscription"
   topic_id           = data.azurerm_servicebus_topic.order_topic.id
   max_delivery_count = 1
