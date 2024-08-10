@@ -85,6 +85,27 @@ resource "azurerm_servicebus_subscription" "customer_topic_subscription" {
   max_delivery_count = 1
 }
 
+data "azurerm_servicebus_namespace" "order_topic_namespace" {
+  name                = "fiap-tech-challenge-order-topic-namespace"
+  resource_group_name = "fiap-tech-challenge-order-group"
+}
+
+data "azurerm_servicebus_topic" "order_topic" {
+  name         = "fiap-tech-challenge-order-topic"
+  namespace_id = data.azurerm_servicebus_namespace.order_topic_namespace.id
+}
+
+data "azurerm_servicebus_topic_authorization_rule" "order_topic_manager" {
+  name     = "${data.azurerm_servicebus_topic.order_topic.name}-manager"
+  topic_id = data.azurerm_servicebus_topic.order_topic.id
+}
+
+resource "azurerm_servicebus_subscription" "customer_topic_subscription" {
+  name               = "order-topic-admin-subscription"
+  topic_id           = data.azurerm_servicebus_topic.order_topic.id
+  max_delivery_count = 1
+}
+
 resource "azurerm_servicebus_namespace" "servicebus_namespace" {
   name                = "fiap-tech-challenge-product-topic-namespace"
   location            = azurerm_resource_group.resource_group.location
@@ -176,32 +197,47 @@ resource "azurerm_container_app" "container_app" {
       }
 
       env {
-        name  = "ASPNETCORE_ConnectionStrings__AdminDatabase__Type"
+        name  = "ConnectionStrings__AdminDatabase__Type"
         value = "MSSQL"
       }
 
       env {
-        name  = "ASPNETCORE_ConnectionStrings__AdminDatabase__Value"
+        name  = "ConnectionStrings__AdminDatabase__Value"
         value = "Server=tcp:${azurerm_mssql_server.sqlserver.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.sanduba_admin_database.name};Persist Security Info=False;User ID=${random_uuid.sqlserver_user.result};Password=${random_password.sqlserver_password.result};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
       }
 
       env {
-        name  = "ASPNETCORE_CustomerBrokerSettings__ConnectionStrings"
+        name  = "CustomerBrokerSettings__ConnectionString"
         value = data.azurerm_servicebus_topic_authorization_rule.customer_topic_manager.primary_connection_string
       }
 
       env {
-        name  = "ASPNETCORE_CustomerBrokerSettings__TopicName"
+        name  = "CustomerBrokerSettings__TopicName"
         value = data.azurerm_servicebus_topic.customer_topic.name
       }
 
       env {
-        name  = "ASPNETCORE_CustomerBrokerSettings__SubscriptionName"
+        name  = "CustomerBrokerSettings__SubscriptionName"
         value = azurerm_servicebus_subscription.customer_topic_subscription.name
       }
 
       env {
-        name  = "ASPNETCORE_ProductBrokerSettings__ConnectionStrings"
+        name  = "OrderBrokerSettings__ConnectionString"
+        value = data.azurerm_servicebus_topic_authorization_rule.customer_order_manager.primary_connection_string
+      }
+
+      env {
+        name  = "OrderBrokerSettings__TopicName"
+        value = data.azurerm_servicebus_topic.order_topic.name
+      }
+
+      env {
+        name  = "OrderBrokerSettings__SubscriptionName"
+        value = azurerm_servicebus_subscription.order_topic_subscription.name
+      }
+
+      env {
+        name  = "ProductBrokerSettings__ConnectionStrings"
         value = azurerm_servicebus_topic_authorization_rule.servicebus_topic_manager.primary_connection_string
       }
     }
