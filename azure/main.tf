@@ -223,7 +223,7 @@ resource "azurerm_container_app" "container_app" {
 
       env {
         name  = "OrderBrokerSettings__ConnectionString"
-        value = data.azurerm_servicebus_topic_authorization_rule.customer_order_manager.primary_connection_string
+        value = data.azurerm_servicebus_topic_authorization_rule.order_topic_manager.primary_connection_string
       }
 
       env {
